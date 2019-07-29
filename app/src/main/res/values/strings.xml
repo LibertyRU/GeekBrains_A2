@@ -5,7 +5,7 @@
     <string name="nav_header_title">Черкасов Дмитрий</string>
     <string name="nav_header_subtitle">mail@mail.com</string>
     <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Настройки</string>
+    <string name="action_SMS">Share by SMS</string>
     <string name="about_me">О разработчике</string>
     <string name="form_callback">Форма обратной связи</string>
     <string name="search">Поиск</string>

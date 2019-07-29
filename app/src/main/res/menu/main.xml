@@ -2,14 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_SMS"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/form_callback"
-        android:orderInCategory="100"
-        android:title="@string/form_callback"
+        android:title="@string/action_SMS"
         app:showAsAction="never" />
     <item
         android:id="@+id/search"
