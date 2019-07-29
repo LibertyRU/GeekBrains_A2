@@ -3,6 +3,10 @@ package ru.geekbrains.block_2;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -18,13 +22,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import java.text.BreakIterator;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int PERMISSION_REQUEST_CODE = 10; // Этот код будет возворащаться, когда пользователь согласится
+    private static final int PERMISSION_REQUEST_CODE_TEMP = 20; // Этот код будет возворащаться, когда пользователь согласится
+    private static final int PERMISSION_REQUEST_CODE_WATER = 30; // Этот код будет возворащаться, когда пользователь согласится
     private String phoneNumber;
     private String message;
+    private SensorManager sensorManager;
+    private List<Sensor> sensors;
+    private Sensor sensorTemp;
+    private TextView textTemp;
+    private TextView textWater;
+    private Sensor sensorWater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +66,65 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        textTemp = findViewById(R.id.sensorTemp);
+        textWater = findViewById(R.id.sensorWater);
+
+        getTempAndWater();
     }
+
+    private void getTempAndWater() {
+        // Менеджер датчиков
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        // Получить все датчики, какие есть
+        sensorWater = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
+        // Датчик освещенности (он есть на многих моделях)
+        sensorTemp = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
+        // Регистрируем слушатель датчика освещенности
+        sensorManager.registerListener(listenerTemp, sensorTemp,
+                SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(listenerWater, sensorWater,
+                SensorManager.SENSOR_DELAY_NORMAL);
+
+    }
+    void showTempSensor(SensorEvent event) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Temp Sensor value = ").append(event.values[0]);
+        textTemp.setText(stringBuilder);
+    }
+
+    void showWaterSensor(SensorEvent event) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Water Sensor value = ").append(event.values[0]);
+        textWater.setText(stringBuilder);
+    }
+
+    // Слушатель датчика освещенности
+    SensorEventListener listenerTemp = new SensorEventListener() {
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            showTempSensor(event);
+        }
+    };
+
+    SensorEventListener listenerWater = new SensorEventListener() {
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            showWaterSensor(event);
+        }
+    };
+
+
 
     @Override
     public void onBackPressed() {
@@ -77,7 +151,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         View view = findViewById(R.id.drawer_layout);
         phoneNumber = "tel:89011112542";
-        message = "Hello!";
+        message = textTemp.getText() + "\n" + textWater.getText();
         //noinspection SimplifiableIfStatement
         switch (id){
         case R.id.action_SMS:
@@ -123,13 +197,16 @@ public class MainActivity extends AppCompatActivity
     // Это результат запроса у пользователя пермиссии
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == PERMISSION_REQUEST_CODE) {   // Это та самая пермиссия, что мы запрашивали?
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Все препоны пройдены и пермиссия дана, можно делать звонок
-                makeSms(phoneNumber, message);
-            }
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Все препоны пройдены и пермиссия дана, можно делать звонок
+                    makeSms(phoneNumber, message);
+                }
+            default:
         }
     }
+
 
     void makeSms(String phoneNumber, String message){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
