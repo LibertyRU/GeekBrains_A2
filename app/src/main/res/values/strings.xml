@@ -11,4 +11,7 @@
     <string name="search">Поиск</string>
     <string name="help">Поддержка</string>
     <string name="fast_question">ЧАВО</string>
+    <string name="weather">Погода</string>
+    <string name="text_about_sensor">Показания датчиков твоего телефона:</string>
+    <string name="text_name_akkerman">Расчет функции Аккермана:</string>
 </resources>

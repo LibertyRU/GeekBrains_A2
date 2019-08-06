@@ -1,7 +1,6 @@
 package ru.geekbrains.block_2;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -12,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentTransaction;
 import android.telephony.SmsManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -22,33 +22,30 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 
-import java.text.BreakIterator;
-import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private static final int PERMISSION_REQUEST_CODE = 10; // Этот код будет возворащаться, когда пользователь согласится
-    private static final int PERMISSION_REQUEST_CODE_TEMP = 20; // Этот код будет возворащаться, когда пользователь согласится
-    private static final int PERMISSION_REQUEST_CODE_WATER = 30; // Этот код будет возворащаться, когда пользователь согласится
-    private String phoneNumber;
-    private String message;
-    private SensorManager sensorManager;
-    private List<Sensor> sensors;
-    private Sensor sensorTemp;
-    private TextView textTemp;
-    private TextView textWater;
-    private Sensor sensorWater;
+    private static final int PERMISSION_REQUEST_CODE = 10; // Этот код будет возвращаться, когда пользователь согласится
+    private String phoneNumber; // номер телефона
+    private String message; // текст сообщения
+    FragmentAkkerman fAkk;
+    FragmentMain fMain;
+    FragmentTransaction fTrans;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Главная разметка
         setContentView(R.layout.activity_main);
+
+        // подгружаем тулбар
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // подгружаем кнопку
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,72 +55,36 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        //подгружаем драувер
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        // подгружаем навигатион
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        textTemp = findViewById(R.id.sensorTemp);
-        textWater = findViewById(R.id.sensorWater);
-
-        getTempAndWater();
+        // создаем фрагменты
+        fAkk = new FragmentAkkerman();
+        fMain = new FragmentMain();
     }
 
-    private void getTempAndWater() {
-        // Менеджер датчиков
-        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-        // Получить все датчики, какие есть
-        sensorWater = sensorManager.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
-        // Датчик освещенности (он есть на многих моделях)
-        sensorTemp = sensorManager.getDefaultSensor(Sensor.TYPE_RELATIVE_HUMIDITY);
-        // Регистрируем слушатель датчика освещенности
-        sensorManager.registerListener(listenerTemp, sensorTemp,
-                SensorManager.SENSOR_DELAY_NORMAL);
-        sensorManager.registerListener(listenerWater, sensorWater,
-                SensorManager.SENSOR_DELAY_NORMAL);
+    @Override
+    protected void onResume() {
+        super.onResume();
 
-    }
-    void showTempSensor(SensorEvent event) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Temp Sensor value = ").append(event.values[0]);
-        textTemp.setText(stringBuilder);
+        // создаем базовый фрагмент
+        fTrans = getSupportFragmentManager().beginTransaction();
+        fTrans.add(R.id.base_main, fMain);
+        fTrans.commit();
     }
 
-    void showWaterSensor(SensorEvent event) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Water Sensor value = ").append(event.values[0]);
-        textWater.setText(stringBuilder);
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
-
-    // Слушатель датчика освещенности
-    SensorEventListener listenerTemp = new SensorEventListener() {
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        }
-
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            showTempSensor(event);
-        }
-    };
-
-    SensorEventListener listenerWater = new SensorEventListener() {
-
-        @Override
-        public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        }
-
-        @Override
-        public void onSensorChanged(SensorEvent event) {
-            showWaterSensor(event);
-        }
-    };
-
 
 
     @Override
@@ -150,21 +111,21 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         View view = findViewById(R.id.drawer_layout);
-        phoneNumber = "tel:89011112542";
-        message = textTemp.getText() + "\n" + textWater.getText();
+        //phoneNumber = "tel:89011112542";
+        //message = fMain.getView().findViewById(R.id.sensorTemp) + "\n" + fMain.getView().findViewById(R.id.sensorWater);
         //noinspection SimplifiableIfStatement
         switch (id){
-        case R.id.action_SMS:
-        makeSms(phoneNumber, message);
-            Snackbar.make(view, "Сообщение отправлено!", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show();
+        //case R.id.action_SMS:
+        //makeSms(phoneNumber, message);
+        //    Snackbar.make(view, "Сообщение отправлено!", Snackbar.LENGTH_LONG)
+        //            .setAction("Action", null).show();
+        //break;
         default:
-
+        break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -172,26 +133,27 @@ public class MainActivity extends AppCompatActivity
         View view = findViewById(R.id.drawer_layout); // получаем драувер навигацию для использования в Снэке
         switch (id)
             {
+                case R.id.weather:
+                    fTrans = getSupportFragmentManager().beginTransaction();
+                    fTrans.replace(R.id.base_main, fMain);
+                    fTrans.commit();
+                    break;
+                case R.id.Akkerman:
+                    fTrans = getSupportFragmentManager().beginTransaction();
+                    fTrans.replace(R.id.base_main, fAkk);
+                    fTrans.commit();
+                    break;
                 case R.id.about_me :
                 case R.id.callback_icon:
                 case R.id.nav_help:
                 default:
                     Snackbar.make(view, "Раздел меню находится в разработке", Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
+                    break;
             }
-
         DrawerLayout drawer = (DrawerLayout) view;
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    // Запрос пермиссии для вызова
-    public void requestForCallPermission() {
-        // Можем ли мы запрашивать пермиссии, если нет, то и смысла нет запрашивать
-        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
-            // Запрашиваем пермиссии у пользователя
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, PERMISSION_REQUEST_CODE);
-        }
     }
 
     // Это результат запроса у пользователя пермиссии
@@ -207,13 +169,22 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
+    // отправляем сообщение на @param phoneNumber, с сообщением @param message
     void makeSms(String phoneNumber, String message){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) == PackageManager.PERMISSION_GRANTED) {
             SmsManager.getDefault().sendTextMessage(phoneNumber, null, message, null, null);
         } else {
 // Если пермиссии нет, то запросим у пользователя
             requestForCallPermission();
+        }
+    }
+
+    // Запрос пермиссии для вызова
+    public void requestForCallPermission() {
+        // Можем ли мы запрашивать пермиссии, если нет, то и смысла нет запрашивать
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
+            // Запрашиваем пермиссии у пользователя
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, PERMISSION_REQUEST_CODE);
         }
     }
 

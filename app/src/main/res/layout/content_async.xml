@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/async"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".AsyncActivity"
+    tools:showIn="@layout/app_bar_async"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_name_akkerman"
+                android:textSize="@dimen/text_size_big"
+                android:layout_marginStart="80dp"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/akkermanText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Идет расчет... Шаг: "
+                    android:layout_marginStart="40dp"/>
+                <Button
+                    android:id="@+id/buttonAkkerman"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Произвести расчет"
+                    android:layout_marginStart="20dp"/>
+            </LinearLayout>
+            <TextView
+                android:id="@+id/akkermanResult"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Расчет завершен. Всего шагов: "
+                android:layout_marginStart="40dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
